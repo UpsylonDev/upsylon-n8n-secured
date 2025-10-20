@@ -1,0 +1,16 @@
+{
+  "name": "n8n-runner",
+  "version": "1.0.0",
+  "description": "API server to run scripts remotely from n8n",
+  "main": "n8n-runner.js",
+  "scripts": {
+    "start": "node n8n-runner.js",
+    "dev": "nodemon n8n-runner.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
