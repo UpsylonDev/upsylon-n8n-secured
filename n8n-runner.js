@@ -81,8 +81,8 @@ app.get('/status', (req, res) =>
     status: 'running',
     project: 'nuxt-domain-driven-design-demo',
     timestamp: new Date().toISOString()
-  });
-});
+  })
+);
 
 const PORT = 3000;
 app.listen(PORT, () => {
