@@ -7,8 +7,16 @@ app.use(express.json());
 
 // Route pour exécuter des scripts npm/pnpm
 app.post('/run-script', (req, res) => {
-  const { script } = req.body; // "dev", "build", "test", etc.
-  const projectPath = 'C:/dev/experiments/DDD-NUXT/nuxt-domain-driven-design-demo';
+  const { script, path } = req.body; // "dev", "build", "test", etc.
+  const projectPath = path || null
+
+  if (path === null) {
+    return res.status(400).json({ 
+      success: false,
+      error: 'Project path is required.....'
+    });
+    
+  }
   
   console.log(`🚀 Executing: pnpm run ${script}`);
   
