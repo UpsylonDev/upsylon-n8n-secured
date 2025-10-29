@@ -76,7 +76,7 @@ app.post('/run-command', (req, res) => {
 });
 
 // Route de status
-app.get('/status', (req, res) => {
+app.get('/status', (req, res) =>
   res.json({ 
     status: 'running',
     project: 'nuxt-domain-driven-design-demo',
