@@ -14,7 +14,7 @@ services:
       - n8n-runner
 
   n8n-runner:
-    build: ./n8n-runner
+    image: upiik/n8n-runner:latest
     container_name: n8n-runner
     restart: unless-stopped
     ports:
