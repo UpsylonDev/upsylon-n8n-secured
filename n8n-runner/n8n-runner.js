@@ -92,8 +92,8 @@ app.get('/status', (req, res) =>
   })
 );
 
-const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`✅ n8n runner listening on http://localhost:${PORT}`);
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ n8n runner listening on http://0.0.0.0:${PORT}`);
   console.log(`📁 Project: C:/dev/experiments/DDD-NUXT/nuxt-domain-driven-design-demo`);
 });
