@@ -67,7 +67,8 @@ docker run --rm -v tests-n8n_n8n_data:/data -v $(pwd)/backup:/backup alpine tar 
 - Depends on n8n-runner service
 
 ### n8n-runner Service (Port 3000)
-- Express.js API server built from `./n8n-runner` directory
+- Express.js API server available as Docker image: `upiik/n8n-runner:latest`
+- Source code available in `./n8n-runner` directory
 - Provides HTTP endpoints for executing scripts/commands on remote projects
 - **No authentication** - localhost only, never expose publicly
 - Maximum buffer: 10MB for command output
@@ -127,11 +128,47 @@ This setup enables powerful local automation workflows:
 
 ## Development Workflow
 
+### Using the Pre-built Image (Recommended)
+
+The `docker-compose.yml` uses the pre-built image `upiik/n8n-runner:latest` from Docker Hub. Simply run:
+```bash
+docker-compose up -d
+```
+
 ### Modifying n8n-runner
 
+If you need to customize the n8n-runner:
+
 1. Edit code in `./n8n-runner/` directory
-2. Rebuild and restart: `docker-compose up -d --build n8n-runner`
-3. View logs: `docker-compose logs -f n8n-runner`
+2. Update `docker-compose.yml` to use local build:
+   ```yaml
+   n8n-runner:
+     build: ./n8n-runner  # Instead of image: upiik/n8n-runner:latest
+   ```
+3. Rebuild and restart: `docker-compose up -d --build n8n-runner`
+4. View logs: `docker-compose logs -f n8n-runner`
+
+### Publishing Updates to Docker Hub
+
+If you modified the n8n-runner and want to publish your changes:
+
+```bash
+# Build the image
+docker-compose build n8n-runner
+
+# Tag with your Docker Hub username
+docker tag tests-n8n-n8n-runner:latest YOUR_USERNAME/n8n-runner:latest
+
+# Login to Docker Hub
+docker login
+
+# Push to Docker Hub
+docker push YOUR_USERNAME/n8n-runner:latest
+
+# Update docker-compose.yml to use your image
+# Change: image: upiik/n8n-runner:latest
+# To:     image: YOUR_USERNAME/n8n-runner:latest
+```
 
 ### Testing API Endpoints
 
@@ -172,9 +209,27 @@ curl -X POST http://localhost:3000/run-command \
 - n8n data is preserved across container restarts via Docker volume
 - Both services must run for full functionality (n8n depends on n8n-runner)
 
+## Docker Hub Deployment
+
+### Available Image
+- **Docker Hub**: `upiik/n8n-runner:latest`
+- **Public**: Anyone can pull and use this image
+- **Size**: ~200MB (Node.js 18 Alpine based)
+
+### Quick Start (No Build Required)
+Since the image is on Docker Hub, you can deploy the entire stack without building:
+```bash
+git clone <this-repo>
+cd tests-n8n
+docker-compose up -d
+```
+
+The `n8n-runner` image will be automatically pulled from Docker Hub.
+
 ## Build Issues Fixed
 
-If you encounter Docker build errors:
+If you encounter Docker build errors when building locally:
 1. **"cannot replace directory with file"**: Ensure `.dockerignore` exists in n8n-runner/ and excludes node_modules
 2. **Version warning**: Remove `version: '3.8'` from docker-compose.yml (obsolete in newer Docker Compose)
 3. **Clean rebuild**: Use `docker-compose build --no-cache n8n-runner` after fixing issues
+4. **Tag error when pushing**: Always tag before pushing: `docker tag <local-image> <username>/<image>:<tag>`
