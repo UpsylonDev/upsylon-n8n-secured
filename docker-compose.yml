@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   n8n:
     image: docker.n8n.io/n8nio/n8n
@@ -21,10 +19,6 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
-    working_dir: /app
-    volumes:
-      - ./n8n-runner:/app
-    command: npm start
 
 volumes:
   n8n_data:
