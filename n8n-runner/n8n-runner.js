@@ -1,4 +1,5 @@
 // n8n-runner.js
+require('dotenv').config();
 const express = require('express');
 const { exec } = require('child_process');
 const app = express();
@@ -20,9 +21,9 @@ app.post('/run-script', (req, res) => {
   
   console.log(`🚀 Executing: pnpm run ${script}`);
   
-  const child = exec(`pnpm run ${script}`, { 
+  const child = exec(`pnpm run ${script}`, {
     cwd: projectPath,
-    maxBuffer: 1024 * 1024 * 10 // 10MB buffer
+    maxBuffer: parseInt(process.env.MAX_BUFFER) || 1024 * 1024 * 10
   });
   
   let output = '';
@@ -58,14 +59,21 @@ app.post('/run-script', (req, res) => {
 
 // Route pour exécuter des commandes bash personnalisées
 app.post('/run-command', (req, res) => {
-  const { command } = req.body;
-  const projectPath = 'C:/dev/experiments/DDD-NUXT/nuxt-domain-driven-design-demo';
-  
+  const { command, path } = req.body;
+  const projectPath = path || process.env.DEFAULT_PROJECT_PATH;
+
+  if (!projectPath) {
+    return res.status(400).json({
+      success: false,
+      error: 'Project path is required or DEFAULT_PROJECT_PATH must be set'
+    });
+  }
+
   console.log(`🚀 Executing: ${command}`);
-  
-  exec(command, { 
+
+  exec(command, {
     cwd: projectPath,
-    maxBuffer: 1024 * 1024 * 10
+    maxBuffer: parseInt(process.env.MAX_BUFFER) || 1024 * 1024 * 10
   }, (error, stdout, stderr) => {
     if (error) {
       return res.status(500).json({ 
@@ -85,9 +93,10 @@ app.post('/run-command', (req, res) => {
 
 // Route de status
 app.get('/status', (req, res) =>
-  res.json({ 
+  res.json({
     status: 'running',
-    project: 'nuxt-domain-driven-design-demo',
+    defaultProject: process.env.DEFAULT_PROJECT_PATH || 'Not set',
+    port: process.env.PORT || 3000,
     timestamp: new Date().toISOString()
   })
 );
@@ -95,5 +104,6 @@ app.get('/status', (req, res) =>
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ n8n runner listening on http://0.0.0.0:${PORT}`);
-  console.log(`📁 Project: C:/dev/experiments/DDD-NUXT/nuxt-domain-driven-design-demo`);
+  console.log(`📁 Default project: ${process.env.DEFAULT_PROJECT_PATH || 'Not set'}`);
+  console.log(`🔧 Max buffer: ${process.env.MAX_BUFFER || '10MB'}`);
 });
