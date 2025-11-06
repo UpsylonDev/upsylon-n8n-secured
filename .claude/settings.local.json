@@ -1,7 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(docker push:*)"
+      "Bash(docker push:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker-compose down:*)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []
