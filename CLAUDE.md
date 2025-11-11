@@ -6,7 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is an n8n workflow automation environment with a companion Express.js API server (n8n-runner) that enables remote script/command execution on external projects from n8n workflows.
 
-**Two-service architecture:**
+**Three-service architecture:**
+- **PostgreSQL (Docker)**: Database backend for n8n data persistence (port 5432, internal only)
 - **n8n (Docker)**: Workflow automation platform running at http://localhost:5678
 - **n8n-runner (Docker)**: Express API server at http://localhost:3000 that executes commands on remote projects
 
@@ -49,22 +50,37 @@ docker-compose down -v
 ### Data Backup
 
 ```bash
-# Backup n8n workflows and data
-mkdir backup
-docker run --rm -v tests-n8n_n8n_data:/data -v $(pwd)/backup:/backup alpine tar czf /backup/n8n-backup.tar.gz -C /data .
+# Backup PostgreSQL database (recommended method)
+docker-compose exec postgres pg_dump -U n8n n8n > backup/n8n-db-backup.sql
 
-# Restore from backup
-docker run --rm -v tests-n8n_n8n_data:/data -v $(pwd)/backup:/backup alpine tar xzf /backup/n8n-backup.tar.gz -C /data
+# Restore PostgreSQL database
+cat backup/n8n-db-backup.sql | docker-compose exec -T postgres psql -U n8n n8n
+
+# Alternative: Backup entire PostgreSQL volume
+docker run --rm -v tests-n8n_postgres_data:/data -v $(pwd)/backup:/backup alpine tar czf /backup/postgres-backup.tar.gz -C /data .
+
+# Restore PostgreSQL volume
+docker run --rm -v tests-n8n_postgres_data:/data -v $(pwd)/backup:/backup alpine tar xzf /backup/postgres-backup.tar.gz -C /data
 ```
 
 ## Architecture
 
+### PostgreSQL Service (Port 5432, internal only)
+- Stores all n8n workflows, credentials, and execution history
+- Image: `postgres:15-alpine`
+- Database name: `n8n` (configurable via `.env`)
+- User: `n8n` (configurable via `.env`)
+- Data persists in Docker volume `postgres_data`
+- **Transport-friendly**: Volume can be backed up and restored on any machine
+- Healthcheck ensures database is ready before n8n starts
+
 ### n8n Service (Port 5678)
 - Runs the n8n workflow automation platform
-- Basic auth is DISABLED (docker-compose.yml:11)
-- Data persists in Docker volume `n8n_data`
+- Basic auth configured via `.env` file
+- Uses PostgreSQL for all data storage (workflows, credentials, executions)
+- Volume `n8n_data` only stores local files (certificates, custom nodes, etc.)
 - Timezone: Europe/Paris
-- Depends on n8n-runner service
+- Depends on PostgreSQL (waits for health check) and n8n-runner service
 
 ### n8n-runner Service (Port 3000)
 - Express.js API server available as Docker image: `upiik/n8n-runner:latest`
@@ -206,8 +222,47 @@ curl -X POST http://localhost:3000/run-command \
 - The README.md contains extensive French documentation about n8n capabilities, AI integrations, and learning resources
 - Current implementation targets a specific Nuxt project path in `/run-command` - modify n8n-runner.js:62 to change this
 - The `/run-script` endpoint now requires dynamic path parameter, making it more flexible
-- n8n data is preserved across container restarts via Docker volume
-- Both services must run for full functionality (n8n depends on n8n-runner)
+- **All workflow data is stored in PostgreSQL**, making it easy to backup and transport between machines
+- All three services must run for full functionality (n8n depends on PostgreSQL and n8n-runner)
+- PostgreSQL credentials are configured in `.env` file for security
+
+## Database Configuration
+
+### Environment Variables
+
+All database settings are configured via the `.env` file:
+
+```env
+# PostgreSQL Configuration
+POSTGRES_USER=n8n                      # Database username
+POSTGRES_PASSWORD=n8n_secure_password_123  # Database password (CHANGE THIS!)
+POSTGRES_DB=n8n                        # Database name
+```
+
+**IMPORTANT**: Change the default password in `.env` before deploying!
+
+### Why PostgreSQL?
+
+✅ **Advantages over SQLite (default)**:
+- **Portability**: Entire database can be exported as SQL file
+- **Backup/Restore**: Simple `pg_dump` command
+- **Performance**: Better with large workflows and many executions
+- **Transport-friendly**: Move your workflows between machines easily
+- **Professional**: Production-ready database system
+
+### Migrating from SQLite to PostgreSQL
+
+If you had workflows in SQLite before adding PostgreSQL:
+
+1. Your old workflows are still in the `n8n_data` volume
+2. n8n will start fresh with PostgreSQL (empty database)
+3. You need to manually recreate workflows or use n8n's export/import feature
+
+**Migration steps**:
+1. Export workflows from old n8n: Settings → Export workflows
+2. Stop the stack: `docker-compose down`
+3. Start with PostgreSQL: `docker-compose up -d`
+4. Import workflows: Settings → Import workflows
 
 ## Docker Hub Deployment
 
