@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: n8n-postgres
+    container_name: ${PROJECT_NAME:-n8n-secure}-postgres
     restart: unless-stopped
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-n8n}
@@ -17,16 +17,16 @@ services:
 
   n8n:
     image: docker.n8n.io/n8nio/n8n
-    container_name: n8n-secure
+    container_name: ${PROJECT_NAME:-n8n-secure}
     restart: unless-stopped
     ports:
-      - "3000:5678"
+      - "${N8N_PORT:-3000}:5678"
     environment:
       - N8N_BASIC_AUTH_ACTIVE=${N8N_BASIC_AUTH_ACTIVE:-true}
       - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-admin}
       - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-changeme}
       - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-Europe/Paris}
-      - WEBHOOK_URL=${WEBHOOK_URL:-http://localhost:3000}
+      - WEBHOOK_URL=${WEBHOOK_URL:-http://localhost:${N8N_PORT:-3000}}
       - N8N_RUNNERS_ENABLED=${N8N_RUNNERS_ENABLED:-true}
       - N8N_BLOCK_ENV_ACCESS_IN_NODE=${N8N_BLOCK_ENV_ACCESS_IN_NODE:-false}
       - N8N_GIT_NODE_DISABLE_BARE_REPOS=${N8N_GIT_NODE_DISABLE_BARE_REPOS:-true}

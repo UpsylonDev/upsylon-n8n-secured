@@ -39,7 +39,25 @@ mkdir n8n-project
 cd n8n-project
 ```
 
-### 2. Créer le fichier docker-compose.yml
+### 2. Configuration de l'environnement
+
+Copiez le fichier d'exemple `.env.example` vers `.env` :
+
+```bash
+cp .env.example .env
+```
+
+Ouvrez le fichier `.env` et configurez votre projet :
+
+```properties
+# Nom unique pour votre projet (ex: mon-projet-client-a)
+PROJECT_NAME=mon-projet-client-a
+
+# Port unique pour ce projet (ex: 3001 si 3000 est déjà pris)
+N8N_PORT=3001
+```
+
+### 3. Créer le fichier docker-compose.yml
 
 Crée un fichier `docker-compose.yml` avec ce contenu :
 
@@ -74,7 +92,7 @@ Le `-d` signifie "détaché" (tourne en arrière-plan)
 
 ### 4. Accéder à l'interface
 
-Ouvre ton navigateur : `http://localhost:5678`
+Ouvre ton navigateur : `http://localhost:3000` (ou le port défini dans `N8N_PORT`)
 
 **Identifiants par défaut :**
 
@@ -185,10 +203,12 @@ Pour créer un nouveau projet n8n complètement indépendant avec une base de do
 3. **Lancer** le nouveau projet :
    ```bash
    cd mon-nouveau-projet
+   cp .env.example .env
+   # Modifiez PROJECT_NAME et N8N_PORT dans .env
    docker-compose up -d
    ```
 
-Docker créera automatiquement des volumes séparés pour ce nouveau projet. Vos données seront totalement isolées de vos autres projets.
+Docker créera automatiquement des conteneurs nommés selon votre `PROJECT_NAME` (ex: `mon-projet-n8n`) et utilisera le port défini. Vos données seront totalement isolées.
 
 ---
 
