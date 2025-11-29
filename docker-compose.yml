@@ -17,16 +17,19 @@ services:
 
   n8n:
     image: docker.n8n.io/n8nio/n8n
-    container_name: n8n
+    container_name: n8n-secure
     restart: unless-stopped
     ports:
-      - "5678:5678"
+      - "3000:5678"
     environment:
       - N8N_BASIC_AUTH_ACTIVE=${N8N_BASIC_AUTH_ACTIVE:-true}
       - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-admin}
       - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-changeme}
       - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-Europe/Paris}
-      - WEBHOOK_URL=${WEBHOOK_URL:-http://localhost:5678}
+      - WEBHOOK_URL=${WEBHOOK_URL:-http://localhost:3000}
+      - N8N_RUNNERS_ENABLED=${N8N_RUNNERS_ENABLED:-true}
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=${N8N_BLOCK_ENV_ACCESS_IN_NODE:-false}
+      - N8N_GIT_NODE_DISABLE_BARE_REPOS=${N8N_GIT_NODE_DISABLE_BARE_REPOS:-true}
       - DB_TYPE=postgresdb
       - DB_POSTGRESDB_HOST=postgres
       - DB_POSTGRESDB_PORT=5432
@@ -38,18 +41,18 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      n8n-runner:
-        condition: service_started
+      # n8n-runner:
+      #   condition: service_started
 
-  n8n-runner:
-    image: upiik/n8n-runner:latest
-    container_name: n8n-runner
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    environment:
-      - DEFAULT_PROJECT_PATH=${DEFAULT_PROJECT_PATH:-}
-      - MAX_BUFFER=${MAX_BUFFER:-10485760}
+  # n8n-runner:
+  #   image: upiik/n8n-runner:latest
+  #   container_name: n8n-runner
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - DEFAULT_PROJECT_PATH=${DEFAULT_PROJECT_PATH:-}
+  #     - MAX_BUFFER=${MAX_BUFFER:-10485760}
 
 volumes:
   n8n_data:

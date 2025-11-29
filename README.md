@@ -1,17 +1,18 @@
 # N8n local container
 
 ## Tuto :
+
 `https://www.youtube.com/watch?v=4QdYfnJrLuE&list=PLTP6_OsD42BcfT_TyvDsJEomAc1lg5pSr`
 
 ## Quick : Si déjà installé
-  - docker-compose up -d
-  - `http://localhost:5678`
-  
-  - update : docker pull docker.n8n.io/n8nio/n8n
-  - stop : docker-compose down
+
+- docker-compose up -d
+- `http://localhost:9000`
+
+- update : docker pull docker.n8n.io/n8nio/n8n
+- stop : docker-compose down
 
 # n8n - Documentation Docker Complète
-## 💰 Licence et Coût
 
 **✅ TOTALEMENT GRATUIT !**
 
@@ -27,10 +28,12 @@
 ## 🚀 Installation initiale
 
 ### Prérequis
+
 - Docker Desktop installé et lancé
 - Un terminal (CMD, PowerShell, ou Terminal selon ton OS)
 
 ### 1. Créer le dossier du projet
+
 ```bash
 mkdir n8n-project
 cd n8n-project
@@ -41,7 +44,7 @@ cd n8n-project
 Crée un fichier `docker-compose.yml` avec ce contenu :
 
 ```yaml
-version: '3.8'
+version: "3.8"
 
 services:
   n8n:
@@ -62,6 +65,7 @@ volumes:
 ```
 
 ### 3. Lancer n8n
+
 ```bash
 docker-compose up -d
 ```
@@ -69,9 +73,11 @@ docker-compose up -d
 Le `-d` signifie "détaché" (tourne en arrière-plan)
 
 ### 4. Accéder à l'interface
+
 Ouvre ton navigateur : `http://localhost:5678`
 
 **Identifiants par défaut :**
+
 - **User** : `admin`
 - **Password** : `admin123`
 
@@ -82,29 +88,35 @@ Ouvre ton navigateur : `http://localhost:5678`
 ### Gestion de base
 
 **Démarrer n8n**
+
 ```bash
 docker-compose up -d
 ```
 
 **Arrêter n8n**
+
 ```bash
 docker-compose down
 ```
 
 **Redémarrer n8n**
+
 ```bash
 docker-compose restart
 ```
 
 **Voir si n8n fonctionne**
+
 ```bash
 docker ps
 ```
 
 **Arrêter et supprimer TOUT (données incluses)**
+
 ```bash
 docker-compose down -v
 ```
+
 ⚠️ **ATTENTION** : Cette commande supprime toutes tes données !
 
 ---
@@ -112,17 +124,21 @@ docker-compose down -v
 ### Logs et débogage
 
 **Voir les logs en temps réel**
+
 ```bash
 docker-compose logs -f
 ```
+
 (Appuie sur `Ctrl+C` pour quitter)
 
 **Voir les dernières lignes de logs**
+
 ```bash
 docker-compose logs --tail=100
 ```
 
 **Voir les logs d'un service spécifique**
+
 ```bash
 docker-compose logs n8n
 ```
@@ -132,25 +148,47 @@ docker-compose logs n8n
 ### Maintenance
 
 **Mettre à jour n8n vers la dernière version**
+
 ```bash
 docker-compose pull
 docker-compose up -d
 ```
 
 **Voir l'espace disque utilisé par Docker**
+
 ```bash
 docker system df
 ```
 
 **Nettoyer Docker (images inutilisées)**
+
 ```bash
 docker system prune -a
 ```
 
 **Voir les conteneurs (même arrêtés)**
+
 ```bash
 docker ps -a
 ```
+
+---
+
+---
+
+## 🆕 Créer un nouveau projet (Base de données vide)
+
+Pour créer un nouveau projet n8n complètement indépendant avec une base de données vide :
+
+1. **Créer un nouveau dossier** sur votre ordinateur (ex: `mon-nouveau-projet`)
+2. **Copier** les fichiers `docker-compose.yml` et `.env` dans ce nouveau dossier
+3. **Lancer** le nouveau projet :
+   ```bash
+   cd mon-nouveau-projet
+   docker-compose up -d
+   ```
+
+Docker créera automatiquement des volumes séparés pour ce nouveau projet. Vos données seront totalement isolées de vos autres projets.
 
 ---
 
@@ -161,16 +199,19 @@ docker ps -a
 Les données de n8n (workflows, credentials, exécutions) sont stockées dans un **volume Docker** nommé `n8n_data`.
 
 **Voir tous les volumes**
+
 ```bash
 docker volume ls
 ```
 
 **Inspecter le volume n8n**
+
 ```bash
 docker volume inspect n8n-project_n8n_data
 ```
 
 **Sauvegarder les données**
+
 ```bash
 # Créer un dossier de backup
 mkdir backup
@@ -180,6 +221,7 @@ docker run --rm -v n8n-project_n8n_data:/data -v $(pwd)/backup:/backup alpine ta
 ```
 
 **Restaurer les données**
+
 ```bash
 docker run --rm -v n8n-project_n8n_data:/data -v $(pwd)/backup:/backup alpine tar xzf /backup/n8n-backup.tar.gz -C /data
 ```
@@ -208,7 +250,7 @@ Si le port 5678 est déjà utilisé par une autre application, modifie le port d
 
 ```yaml
 ports:
-  - "5679:5678"  # Utilise le port 5679 à la place
+  - "5679:5678" # Utilise le port 5679 à la place
 ```
 
 Puis accède à `http://localhost:5679`
@@ -246,6 +288,7 @@ Modifie cette ligne dans `docker-compose.yml` :
 ```
 
 Puis redémarre :
+
 ```bash
 docker-compose down
 docker-compose up -d
@@ -272,7 +315,7 @@ environment:
   - NODE_ENV=production
   - WEBHOOK_URL=http://localhost:5678/
   - EXECUTIONS_DATA_PRUNE=true
-  - EXECUTIONS_DATA_MAX_AGE=168  # Supprime les exécutions après 7 jours
+  - EXECUTIONS_DATA_MAX_AGE=168 # Supprime les exécutions après 7 jours
 ```
 
 ---
@@ -282,7 +325,7 @@ environment:
 Si tu veux utiliser MongoDB (compatible avec ton stack !) au lieu de SQLite :
 
 ```yaml
-version: '3.8'
+version: "3.8"
 
 services:
   mongodb:
@@ -371,28 +414,33 @@ docker exec n8n_mongodb mongorestore --uri="mongodb://root:password123@localhost
 ## 💡 Premiers pas recommandés
 
 ### Jour 1 : Découverte
+
 1. ✅ Lance n8n avec Docker
 2. ✅ Explore l'interface
 3. ✅ Crée un workflow "Hello World" simple
 4. ✅ Teste le node "HTTP Request"
 
 ### Jour 2 : Premier workflow AI
+
 1. ✅ Crée un compte OpenAI (free tier disponible)
 2. ✅ Configure les credentials OpenAI dans n8n
 3. ✅ Crée un chatbot simple avec GPT-4
 4. ✅ Teste différents prompts
 
 ### Jour 3 : Workflow avancé
+
 1. ✅ Ajoute une base de données (MongoDB ou PostgreSQL)
 2. ✅ Crée un système de mémoire conversationnelle
 3. ✅ Utilise des webhooks pour déclencher des workflows
 
 ### Jour 4 : Agent AI
+
 1. ✅ Explore les templates d'agents
 2. ✅ Crée un agent qui peut utiliser des outils (web search, calculator)
 3. ✅ Intègre LangChain
 
 ### Jour 5 : RAG System
+
 1. ✅ Configure Pinecone ou Qdrant
 2. ✅ Crée des embeddings de tes documents
 3. ✅ Construis un chatbot qui répond sur tes données
@@ -402,22 +450,26 @@ docker exec n8n_mongodb mongorestore --uri="mongodb://root:password123@localhost
 ## 📚 Ressources d'apprentissage
 
 ### Documentation officielle
+
 - **Docs n8n** : https://docs.n8n.io
 - **Templates** : https://n8n.io/workflows
 - **Intégrations** : https://n8n.io/integrations
 
 ### Communauté
+
 - **Forum** : https://community.n8n.io
 - **Discord** : https://discord.gg/n8n
 - **GitHub** : https://github.com/n8n-io/n8n
 
 ### Tutoriels AI spécifiques
-- **oAuth avec n8n** : https://docs.n8n.io/integrations/builtin/credentials/google/oauth-single-service/#finish-your-n8n-credential 
+
+- **oAuth avec n8n** : https://docs.n8n.io/integrations/builtin/credentials/google/oauth-single-service/#finish-your-n8n-credential
 - **ChatGPT avec n8n** : https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.openai/
 - **LangChain** : https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain/
 - **Agents AI** : https://blog.n8n.io/ai-agents/
 
 ### Chaînes YouTube recommandées
+
 - **n8n Official** : Tutoriels officiels
 - **AI Automation** : Cas d'usage AI avec n8n
 
@@ -426,18 +478,21 @@ docker exec n8n_mongodb mongorestore --uri="mongodb://root:password123@localhost
 ## 🎓 Exemples de projets à construire
 
 ### Débutant
+
 - ✅ Chatbot simple avec GPT-4
 - ✅ Générateur d'images avec DALL-E
 - ✅ Transcription audio avec Whisper
 - ✅ Résumé automatique d'articles web
 
 ### Intermédiaire
+
 - ✅ Assistant personnel avec mémoire
 - ✅ Système de support client automatisé
 - ✅ Analyseur de sentiment des emails
 - ✅ Générateur de contenu pour réseaux sociaux
 
 ### Avancé
+
 - ✅ Agent AI avec accès à des outils externes
 - ✅ RAG system sur ta base de connaissances
 - ✅ Pipeline de traitement de documents
@@ -448,6 +503,7 @@ docker exec n8n_mongodb mongorestore --uri="mongodb://root:password123@localhost
 ## ✅ Checklist de démarrage
 
 ### Installation
+
 - [ ] Docker Desktop installé et lancé
 - [ ] Dossier `n8n-project` créé
 - [ ] Fichier `docker-compose.yml` créé
@@ -456,12 +512,14 @@ docker exec n8n_mongodb mongorestore --uri="mongodb://root:password123@localhost
 - [ ] Connexion avec admin/admin123 réussie
 
 ### Configuration
+
 - [ ] Mot de passe changé (sécurité)
 - [ ] Compte OpenAI créé (ou autre LLM)
 - [ ] Credentials AI configurés dans n8n
 - [ ] Premier workflow créé et testé
 
 ### Apprentissage
+
 - [ ] Documentation n8n parcourue
 - [ ] Au moins 3 templates explorés
 - [ ] Premier chatbot AI fonctionnel
@@ -526,6 +584,7 @@ docker run --rm -v n8n-project_n8n_data:/data -v $(pwd)/backup:/backup alpine ta
 ## 🎉 Tu es prêt !
 
 **Félicitations !** Tu as maintenant :
+
 - ✅ n8n installé et configuré
 - ✅ Toutes les commandes Docker essentielles
 - ✅ Une roadmap d'apprentissage AI

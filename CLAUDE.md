@@ -57,10 +57,10 @@ docker-compose exec postgres pg_dump -U n8n n8n > backup/n8n-db-backup.sql
 cat backup/n8n-db-backup.sql | docker-compose exec -T postgres psql -U n8n n8n
 
 # Alternative: Backup entire PostgreSQL volume
-docker run --rm -v tests-n8n_postgres_data:/data -v $(pwd)/backup:/backup alpine tar czf /backup/postgres-backup.tar.gz -C /data .
+docker run --rm -v n8n-secure_postgres_data:/data -v $(pwd)/backup:/backup alpine tar czf /backup/postgres-backup.tar.gz -C /data .
 
 # Restore PostgreSQL volume
-docker run --rm -v tests-n8n_postgres_data:/data -v $(pwd)/backup:/backup alpine tar xzf /backup/postgres-backup.tar.gz -C /data
+docker run --rm -v n8n-secure_postgres_data:/data -v $(pwd)/backup:/backup alpine tar xzf /backup/postgres-backup.tar.gz -C /data
 ```
 
 ## Architecture
@@ -173,7 +173,7 @@ If you modified the n8n-runner and want to publish your changes:
 docker-compose build n8n-runner
 
 # Tag with your Docker Hub username
-docker tag tests-n8n-n8n-runner:latest YOUR_USERNAME/n8n-runner:latest
+docker tag n8n-secure-n8n-runner:latest YOUR_USERNAME/n8n-runner:latest
 
 # Login to Docker Hub
 docker login
@@ -275,7 +275,7 @@ If you had workflows in SQLite before adding PostgreSQL:
 Since the image is on Docker Hub, you can deploy the entire stack without building:
 ```bash
 git clone <this-repo>
-cd tests-n8n
+cd n8n-secure
 docker-compose up -d
 ```
 
