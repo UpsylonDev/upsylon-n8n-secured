@@ -614,6 +614,38 @@ docker run --rm -v n8n-project_n8n_data:/data -v $(pwd)/backup:/backup alpine ta
 
 ---
 
+---
+
+## 🚀 Déploiement sur Render.io
+
+Ce projet est configuré pour être déployé facilement sur [Render.io](https://render.com).
+
+### Configuration
+
+1.  **Créer un compte sur Render.io**.
+2.  **Créer un nouveau Blueprint** :
+    - Connectez votre dépôt GitHub à Render.
+    - Render détectera automatiquement le fichier `render.yaml`.
+    - Cliquez sur "Apply".
+
+> ⚠️ **Note Importante** : Le nom du service dans `render.yaml` (`name: n8n-secured`) est **statique**. Si vous changez le nom de votre projet, vous devez modifier manuellement ce fichier, car Render ne supporte pas les variables dynamiques pour les noms de services.
+
+### Déploiement Continu (CD)
+
+Le fichier `.github/workflows/deploy.yml` permet de déclencher un déploiement à chaque push sur la branche `main`.
+
+Pour l'activer :
+
+1.  Allez dans votre dashboard Render, sélectionnez votre service **n8n**.
+2.  Allez dans **Settings** > **Deploy Hook**.
+3.  Copiez l'URL du Deploy Hook.
+4.  Allez dans votre dépôt GitHub > **Settings** > **Secrets and variables** > **Actions**.
+5.  Créez un nouveau secret nommé `RENDER_DEPLOY_HOOK` et collez l'URL.
+
+Désormais, chaque modification sur `main` redéploiera automatiquement votre instance n8n.
+
+---
+
 **Version** : 1.0  
 **Dernière mise à jour** : Octobre 2025  
 **Auteur** : Documentation personnalisée pour apprentissage AI avec n8n

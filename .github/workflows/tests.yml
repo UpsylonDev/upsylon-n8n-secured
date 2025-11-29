@@ -1,0 +1,19 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, master, recette, cicd/**]
+  pull_request:
+    branches: [main, master, recette]
+
+jobs:
+  test:
+    name: Validate Docker Compose
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate Docker Compose
+        run: docker compose config

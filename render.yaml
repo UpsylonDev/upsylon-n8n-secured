@@ -1,0 +1,68 @@
+services:
+  # n8n Web Service
+  - type: web
+    name: n8n-secured
+    runtime: docker
+    repo: https://github.com/n8n-io/n8n
+    plan: starter
+    envVars:
+      - key: N8N_BASIC_AUTH_ACTIVE
+        value: "true"
+      - key: N8N_BASIC_AUTH_USER
+        value: admin
+      - key: N8N_BASIC_AUTH_PASSWORD
+        generateValue: true
+      - key: N8N_HOST
+        fromService:
+          type: web
+          name: n8n
+          property: host
+      - key: N8N_PORT
+        value: "5678"
+      - key: N8N_PROTOCOL
+        value: https
+      - key: NODE_ENV
+        value: production
+      - key: WEBHOOK_URL
+        fromService:
+          type: web
+          name: n8n
+          property: url
+      - key: DB_TYPE
+        value: postgresdb
+      - key: DB_POSTGRESDB_HOST
+        fromService:
+          type: pserv
+          name: postgres
+          property: host
+      - key: DB_POSTGRESDB_PORT
+        value: "5432"
+      - key: DB_POSTGRESDB_DATABASE
+        value: n8n
+      - key: DB_POSTGRESDB_USER
+        value: n8n
+      - key: DB_POSTGRESDB_PASSWORD
+        fromEnvVar: POSTGRES_PASSWORD
+    disk:
+      name: n8n_data
+      mountPath: /home/node/.n8n
+      sizeGB: 1
+
+  # Postgres Private Service
+  - type: pserv
+    name: postgres
+    runtime: docker
+    # Using a standard postgres image.
+    # Note: For production, Render's Managed PostgreSQL is recommended over a private service with disk.
+    dockerCommand: docker-entrypoint.sh postgres
+    envVars:
+      - key: POSTGRES_USER
+        value: n8n
+      - key: POSTGRES_PASSWORD
+        generateValue: true
+      - key: POSTGRES_DB
+        value: n8n
+    disk:
+      name: postgres_data
+      mountPath: /var/lib/postgresql/data
+      sizeGB: 1
