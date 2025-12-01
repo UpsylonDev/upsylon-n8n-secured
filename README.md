@@ -167,10 +167,33 @@ docker-compose logs n8n
 
 **Mettre à jour n8n vers la dernière version**
 
-```bash
-docker-compose pull
-docker-compose up -d
+✅ **VOS DONNÉES SONT PRÉSERVÉES** lors d'une mise à jour ! Les volumes Docker (`n8n_data` et `postgres_data`) restent intacts.
+
+**Méthode 1 : Script automatisé (recommandé)**
+
+```powershell
+# Mise à jour avec sauvegarde automatique
+.\scripts\update-n8n.ps1
+
+# Mise à jour rapide sans backup (vos données restent sûres)
+.\scripts\update-n8n.ps1 -SkipBackup
 ```
+
+**Méthode 2 : Manuelle**
+
+```bash
+# Exporter les workflows (recommandé)
+.\scripts\export-workflows.ps1
+
+# Mettre à jour
+docker compose pull
+docker compose up -d
+
+# Vérifier
+docker compose ps
+```
+
+> ⚠️ **IMPORTANT** : N'utilisez **JAMAIS** `docker compose down -v` car le flag `-v` supprime les volumes et donc vos données !
 
 **Voir l'espace disque utilisé par Docker**
 
