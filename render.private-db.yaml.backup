@@ -1,7 +1,3 @@
-# Configuration Render.io avec PostgreSQL Managée
-# Cette configuration utilise une base de données PostgreSQL managée par Render
-# pour garantir la persistance des données entre les déploiements
-
 services:
   # n8n Web Service
   - type: web
@@ -9,16 +5,12 @@ services:
     runtime: docker
     plan: starter
     envVars:
-      # Authentication
       - key: N8N_BASIC_AUTH_ACTIVE
         value: "true"
       - key: N8N_BASIC_AUTH_USER
         value: admin
       - key: N8N_BASIC_AUTH_PASSWORD
-        sync: false # Ne pas régénérer à chaque déploiement
         generateValue: true
-
-      # n8n Configuration
       - key: N8N_HOST
         fromService:
           type: web
@@ -35,50 +27,48 @@ services:
           type: web
           name: n8n-secured
           property: url
-
-      # PostgreSQL Configuration (Managed Database)
       - key: DB_TYPE
         value: postgresdb
-      - key: DB_POSTGRESDB_DATABASE
-        fromDatabase:
-          name: n8n-postgres
-          property: database
       - key: DB_POSTGRESDB_HOST
-        fromDatabase:
-          name: n8n-postgres
+        fromService:
+          type: pserv
+          name: postgres
           property: host
       - key: DB_POSTGRESDB_PORT
-        fromDatabase:
-          name: n8n-postgres
-          property: port
+        value: "5432"
+      - key: DB_POSTGRESDB_DATABASE
+        value: n8n
       - key: DB_POSTGRESDB_USER
-        fromDatabase:
-          name: n8n-postgres
-          property: user
+        value: n8n
       - key: DB_POSTGRESDB_PASSWORD
-        fromDatabase:
-          name: n8n-postgres
-          property: password
-
-      # n8n Features
+        fromEnvVar: POSTGRES_PASSWORD
       - key: N8N_RUNNERS_ENABLED
         value: "true"
       - key: N8N_BLOCK_ENV_ACCESS_IN_NODE
         value: "false"
       - key: N8N_GIT_NODE_DISABLE_BARE_REPOS
         value: "true"
-      - key: DB_SQLITE_POOL_SIZE
-        value: "3"
-
-    # Persistent disk for n8n files
     disk:
       name: n8n_data
       mountPath: /home/node/.n8n
       sizeGB: 1
 
-# PostgreSQL Managed Database
-databases:
-  - name: n8n-postgres
-    plan: starter # Changez en 'free' pour tester (limitations: 1GB, 7 jours de rétention)
-    databaseName: n8n
-    user: n8n
+  # Postgres Private Service
+  - type: pserv
+    name: postgres
+    runtime: docker
+    image: postgres:15-alpine
+    # Using a standard postgres image.
+    # Note: For production, Render's Managed PostgreSQL is recommended over a private service with disk.
+    dockerCommand: docker-entrypoint.sh postgres
+    envVars:
+      - key: POSTGRES_USER
+        value: n8n
+      - key: POSTGRES_PASSWORD
+        generateValue: true
+      - key: POSTGRES_DB
+        value: n8n
+    disk:
+      name: postgres_data
+      mountPath: /var/lib/postgresql/data
+      sizeGB: 1

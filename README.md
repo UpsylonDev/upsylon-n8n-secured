@@ -697,17 +697,45 @@ docker run --rm -v n8n-project_n8n_data:/data -v $(pwd)/backup:/backup alpine ta
 
 ## 🚀 Déploiement sur Render.io
 
-Ce projet est configuré pour être déployé facilement sur [Render.io](https://render.com).
+Ce projet est configuré pour être déployé facilement sur [Render.io](https://render.com) avec **PostgreSQL Managée** pour garantir la persistance des données.
 
-### Configuration
+### Configuration PostgreSQL Managée ✅
 
-1.  **Créer un compte sur Render.io**.
-2.  **Créer un nouveau Blueprint** :
-    - Connectez votre dépôt GitHub à Render.
-    - Render détectera automatiquement le fichier `render.yaml`.
-    - Cliquez sur "Apply".
+Le fichier `render.yaml` utilise maintenant une **base de données PostgreSQL managée** par Render, ce qui garantit :
 
-> ⚠️ **Note Importante** : Le nom du service dans `render.yaml` (`name: n8n-secured`) est **statique**. Si vous changez le nom de votre projet, vous devez modifier manuellement ce fichier, car Render ne supporte pas les variables dynamiques pour les noms de services.
+- ✅ **Persistance des données** entre les déploiements
+- ✅ **Backups automatiques** quotidiens
+- ✅ **Haute disponibilité** (99.95% uptime)
+- ✅ **Monitoring** et métriques inclus
+
+### Déploiement Initial
+
+1. **Créer un compte sur Render.io**
+
+2. **Créer la base PostgreSQL** :
+
+   - Dashboard Render → **New +** → **PostgreSQL**
+   - Name: `n8n-postgres`
+   - Database: `n8n`
+   - User: `n8n`
+   - Region: Choisissez votre région préférée
+   - Plan: **Starter** ($7/mois) ou **Free** (pour tester)
+   - Cliquez sur **"Create Database"**
+   - Attendez que le statut soit **"Available"**
+
+3. **Créer le service n8n** :
+
+   - Connectez votre dépôt GitHub à Render
+   - Dashboard Render → **New +** → **Blueprint**
+   - Render détectera automatiquement le fichier `render.yaml`
+   - Cliquez sur **"Apply"**
+
+4. **Configurer n8n** :
+   - Ouvrez l'URL de votre application
+   - Créez votre compte propriétaire sur la page `/setup`
+   - Configurez vos credentials
+
+> 📖 **Guide complet** : Consultez [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) pour les instructions détaillées
 
 ### Déploiement Continu (CD)
 
@@ -715,13 +743,38 @@ Le fichier `.github/workflows/deploy.yml` permet de déclencher un déploiement 
 
 Pour l'activer :
 
-1.  Allez dans votre dashboard Render, sélectionnez votre service **n8n**.
-2.  Allez dans **Settings** > **Deploy Hook**.
-3.  Copiez l'URL du Deploy Hook.
-4.  Allez dans votre dépôt GitHub > **Settings** > **Secrets and variables** > **Actions**.
-5.  Créez un nouveau secret nommé `RENDER_DEPLOY_HOOK` et collez l'URL.
+1. Allez dans votre dashboard Render, sélectionnez votre service **n8n-secured**
+2. Allez dans **Settings** > **Deploy Hook**
+3. Copiez l'URL du Deploy Hook
+4. Allez dans votre dépôt GitHub > **Settings** > **Secrets and variables** > **Actions**
+5. Créez un nouveau secret nommé `RENDER_DEPLOY_HOOK` et collez l'URL
 
 Désormais, chaque modification sur `main` redéploiera automatiquement votre instance n8n.
+
+### Vérification de la Persistance
+
+Pour vérifier que vos données persistent bien :
+
+1. Créez un workflow de test dans n8n
+2. Faites un petit changement dans votre code et poussez
+3. Attendez le redéploiement
+4. Vérifiez que votre workflow est toujours présent ✅
+
+### Dépannage Render
+
+Si vous rencontrez des problèmes :
+
+- 📖 Consultez [RENDER_TROUBLESHOOTING.md](RENDER_TROUBLESHOOTING.md)
+- Vérifiez les logs : Dashboard Render → Service n8n-secured → Logs
+- Vérifiez que la base PostgreSQL est en statut "Available"
+
+### Coûts Render.io
+
+- **Service n8n** : Starter plan (~$7/mois)
+- **PostgreSQL** : Starter plan (~$7/mois) ou Free (limitations)
+- **Total** : ~$14/mois pour une instance production
+
+> 💡 **Astuce** : Utilisez le plan Free pour tester, puis passez à Starter pour la production
 
 ---
 
