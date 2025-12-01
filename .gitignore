@@ -1,2 +1,18 @@
+.env
+# Environment variables (sensitive data)
+.env
+
+# Runner specific
 /n8n-runner/.env.example
 /.start
+
+# Docker volumes (if using bind mounts)
+/data/
+/postgres_data/
+/n8n_data/
+
+# Workflows - Version control
+# Les workflows JSON sont versionnés, sauf les backups et fichiers temporaires
+*-backup.json
+*-temp.json
+*.bak

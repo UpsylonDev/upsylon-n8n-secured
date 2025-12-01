@@ -248,6 +248,62 @@ docker run --rm -v n8n-project_n8n_data:/data -v $(pwd)/backup:/backup alpine ta
 
 ---
 
+## 📝 Versionnement des Workflows
+
+### Pourquoi versionner vos workflows ?
+
+Les workflows n8n sont stockés dans la base de données PostgreSQL et **ne sont pas automatiquement sauvegardés dans Git**. Pour assurer la traçabilité et la collaboration, ce projet inclut un système de versionnement des workflows.
+
+### Export manuel
+
+1. Dans n8n, ouvrez votre workflow
+2. Cliquez sur `...` → `Download`
+3. Sauvegardez le fichier JSON dans `workflows/production/`
+4. Commitez :
+   ```bash
+   git add workflows/
+   git commit -m "feat(workflow): Add email automation"
+   git push
+   ```
+
+### Export automatique (recommandé)
+
+Utilisez le script PowerShell fourni :
+
+```powershell
+# Exporter tous les workflows actifs
+.\scripts\export-workflows.ps1
+
+# Exporter vers staging
+.\scripts\export-workflows.ps1 -Environment staging
+```
+
+### Import de workflows
+
+Pour importer des workflows depuis Git vers n8n :
+
+```powershell
+# Importer depuis production
+.\scripts\import-workflows.ps1
+
+# Mettre à jour les workflows existants
+.\scripts\import-workflows.ps1 -Force
+```
+
+### Structure des workflows
+
+```
+workflows/
+├── production/     # Workflows actifs en production
+├── staging/        # Workflows en test
+├── templates/      # Templates réutilisables
+└── README.md       # Documentation
+```
+
+> 📖 **Documentation complète** : Consultez [WORKFLOWS_VERSIONING.md](WORKFLOWS_VERSIONING.md) pour plus de détails
+
+---
+
 ## 🛠️ Dépannage
 
 ### n8n ne démarre pas
