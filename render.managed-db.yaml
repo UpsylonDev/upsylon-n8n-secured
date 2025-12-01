@@ -18,6 +18,11 @@ services:
         sync: false # Ne pas régénérer à chaque déploiement
         generateValue: true
 
+      # Security
+      - key: N8N_ENCRYPTION_KEY
+        sync: false
+        generateValue: true
+
       # n8n Configuration
       - key: N8N_HOST
         fromService:
