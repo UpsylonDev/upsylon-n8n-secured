@@ -42,6 +42,12 @@ services:
         value: n8n
       - key: DB_POSTGRESDB_PASSWORD
         fromEnvVar: POSTGRES_PASSWORD
+      - key: N8N_RUNNERS_ENABLED
+        value: "true"
+      - key: N8N_BLOCK_ENV_ACCESS_IN_NODE
+        value: "false"
+      - key: N8N_GIT_NODE_DISABLE_BARE_REPOS
+        value: "true"
     disk:
       name: n8n_data
       mountPath: /home/node/.n8n
