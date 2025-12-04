@@ -22,6 +22,7 @@ services:
     ports:
       - "${N8N_PORT:-3000}:5678"
     environment:
+      - N8N_PROTOCOL=https
       - N8N_BASIC_AUTH_ACTIVE=${N8N_BASIC_AUTH_ACTIVE:-true}
       - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-admin}
       - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-changeme}
